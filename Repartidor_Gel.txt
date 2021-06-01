@@ -1,0 +1,71 @@
+//Repartidor de alcohol gel by Jose,Carlos,Manuel
+                  //Alcohol gel dispenser
+
+//libreria de la lcd/lcd library
+#include <LiquidCrystal.h>
+
+int ultrasonido = 0; //variable para mostrar la salida/variable to display the output
+LiquidCrystal screen(5,6,8,9,10,11);//pantalla
+String texto_fuera = "   Acerca tus manos al sensor";//texto a mostrar/text to display
+
+//
+long readUltrasonicDistance(int triggerPin, int echoPin)
+{
+  pinMode(triggerPin, OUTPUT);//Limpiar el trigger/Clear the trigger
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  //Pin trigger en alto por 10microsegundos/trigger pin high for 10microseconds
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  //lee el pin Echo y nos devuelve el tiempo/read the Echo pin and return the time
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup()
+{
+  Serial.begin(9600);//Señal Serial/Serial signal
+ screen.begin(16,2);//iniciar lcd/start lcd
+  pinMode(4, OUTPUT);//salida de la led roja/red led output
+  pinMode(2, OUTPUT);//salida de la led azul/blue led output
+  pinMode(7, OUTPUT);//salida para el tip/tip output
+}
+
+void loop()
+{
+  //calculo de la distancia/distance calculation
+  ultrasonido = 0.01723 * readUltrasonicDistance(13, 12);
+  Serial.print(ultrasonido);//mostrar dustancia/show distance
+  Serial.println(" cm.");
+  //filtro para la distancia no permitida/filter for distance not allowed
+  if (ultrasonido > 8) {
+    screen.clear();
+    //color de la led en distancia incorrecta/led color at wrong distance
+    digitalWrite(4, HIGH);
+    digitalWrite(2, LOW);
+    digitalWrite(7, LOW);
+    
+int tam_texto=texto_fuera.length();//tamaño del texto/text size
+ //texto en moviemiento de derecha a izquierda
+ //text moving from right to left
+  for(int i=0; i<=tam_texto ; i++)
+  {
+    String texto = texto_fuera.substring(i-1);
+    screen.clear(); //Limpiar pantalla/Clear pantalla    
+    screen.setCursor(0, 0);//Situamos el cursor/We place the cursor
+    screen.print(texto);//Esbribir tecto/Write Text
+    delay(100);
+  }
+  } else {
+    delay(500);
+    screen.clear(); 
+  	screen.setCursor(0,0);
+  	screen.print("Bienvenido!");
+    //color de la led en distancia incorrecta/led color in correct distance
+    digitalWrite(2, HIGH);
+    digitalWrite(4, LOW);
+    delay(400);
+    digitalWrite(7, LOW);
+  }
+}
